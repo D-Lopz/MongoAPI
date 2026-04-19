@@ -1,10 +1,4 @@
-'use strict'
-
-//const mongoose = require('mongoose');
-var mongoose = require('mongoose');
-var app = require('./app');
-var port = 3700;
-
+/*const mongoose = require('mongoose');
 
 mongoose.Promise = global.Promise;
 mongoose.connect('mongodb://localhost:27017/Parcial_1_BDA')
@@ -15,5 +9,4 @@ mongoose.connect('mongodb://localhost:27017/Parcial_1_BDA')
             console.log('Servidor funciona correctamente');
         });
     })
-    .catch((err) => console.log(err));
-    
+    .catch((err) => console.log(err));*/
