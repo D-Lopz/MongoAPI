@@ -46,10 +46,54 @@ var ComentariosSchema = Schema({
     resumen: String,
     puntuacion: Number
 });
-// Exportar modelos
 
+// Esquema de Evaluaciones
+var EvaluacionSchema = Schema({
+    fecha_inicio: Date,
+    fecha_fin: Date,
+    estado: String,
+    descripcion: String
+});
+
+// Esquema de Mds
+var MdsSchema = Schema({
+    id_docente: String,
+    id_asignatura: String,
+    id_semestre: String
+});
+
+// Esquema de Programas
+var ProgramaSchema = Schema({
+    nombre_programa: String,
+    codigo: String
+});
+
+// Esquema de Reportes
+var ReporteSchema = Schema({
+    docente: Object,
+    id_docente: String,
+    nombre: String,
+    contenido: String,
+    formato: String,
+    fecha_generacion: Date
+});
+
+// Esquema de Semestres
+var SemestreSchema = Schema({
+    nombre_semestre: String,
+    periodo: String,
+    fecha_inicio: Date,
+    fecha_fin: Date
+});
+
+// Exportar modelos
 module.exports = {
     Usuario: mongoose.model('Usuarios', UsuariosSchema),
     Asignatura: mongoose.model('Asignatura', AsignaturaSchema),
-    Comentario: mongoose.model('Comentarios', ComentariosSchema)
+    Comentario: mongoose.model('Comentarios', ComentariosSchema),
+    Evaluacion: mongoose.model('Evaluaciones', EvaluacionSchema),
+    Mds: mongoose.model('Mds', MdsSchema),
+    Programa: mongoose.model('Programas', ProgramaSchema),
+    Reporte: mongoose.model('Reportes', ReporteSchema),
+    Semestre: mongoose.model('Semestres', SemestreSchema)
 };
