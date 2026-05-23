@@ -123,17 +123,20 @@ var controller = {
     },
 
     
-    getUsuarios: async function(req, res){
-        try {
-            
-            var usuarios = await Usuario.find({}); 
-            if(!usuarios || usuarios.length === 0) return res.status(404).send({ message: 'No hay usuarios registrados.' });
+  getUsuarios: async function(req, res) {
+    try {
+        var query = {};
+        if (req.query.rol) query.rol = req.query.rol;
 
-            return res.status(200).send({ usuarios });
-        } catch(err) {
-            return res.status(500).send({ message: 'Error al retornar los datos.' });
-        }
-    },
+        var usuarios = await Usuario.find(query);
+        if (!usuarios || usuarios.length === 0)
+            return res.status(404).send({ message: 'No hay usuarios registrados.' });
+
+        return res.status(200).send({ usuarios });
+    } catch(err) {
+        return res.status(500).send({ message: 'Error al retornar los datos.' });
+    }
+},
 
     updateUsuario: async function(req, res){
         try {

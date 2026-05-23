@@ -159,7 +159,7 @@ router.delete('/delete-semestre/:id', ProjectController.deleteSemestre);
 
 // ------------------ Rutas adicionales ---------------------
 
-// Obtener comentarios por docente
+/* Obtener comentarios por docente
 router.get('/comentarios-docente/:id_docente', ProjectController.getComentariosByDocente);
 
 // Obtener comentarios por asignatura
@@ -186,5 +186,5 @@ router.get('/docentes-asignatura/:id_asignatura', ProjectController.getDocentesB
 // Obtener asignaturas por docente
 router.get('/asignaturas-docente/:id_docente', ProjectController.getAsignaturasByDocente);
 
-//Exportar router
+//Exportar router*/
 module.exports = router;
