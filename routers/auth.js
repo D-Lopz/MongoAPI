@@ -9,11 +9,18 @@ router.post('/login', async (req, res) => {
     if (!email || !contrasena)
       return res.status(400).json({ message: 'Email y contraseña requeridos.' });
 
-    const usuario = await Usuario.findOne({ email, contrasena });
+    // Normalizar: trim + lowercase para comparación
+    const emailNorm = email.trim().toLowerCase();
+
+    // Buscar ignorando mayúsculas/minúsculas en el email
+    const usuario = await Usuario.findOne({
+      email: { $regex: new RegExp(`^${emailNorm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') },
+      contrasena,
+    });
+
     if (!usuario)
       return res.status(401).json({ message: 'Credenciales incorrectas.' });
 
-    // Normalizar el rol a minúscula antes de devolver
     const datos = usuario.toObject();
     datos.rol = datos.rol?.toLowerCase();
     delete datos.contrasena;

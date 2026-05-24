@@ -123,20 +123,25 @@ var controller = {
     },
 
     
-  getUsuarios: async function(req, res) {
-    try {
-        var query = {};
-        if (req.query.rol) query.rol = req.query.rol;
+    getUsuarios: async function(req, res){
+        try {
+            var query = {};
+            if (req.query.rol) {
+                query.rol = { $regex: new RegExp('^' + req.query.rol + '$', 'i') };
+            }
 
-        var usuarios = await Usuario.find(query);
-        if (!usuarios || usuarios.length === 0)
-            return res.status(404).send({ message: 'No hay usuarios registrados.' });
+            var usuarios = await Usuario.find(query);
+            
+            // Retornar array vacío en vez de 404 cuando no hay resultados
+            if (!usuarios || usuarios.length === 0) {
+                return res.status(200).send({ usuarios: [] });
+            }
 
-        return res.status(200).send({ usuarios });
-    } catch(err) {
-        return res.status(500).send({ message: 'Error al retornar los datos.' });
-    }
-},
+            return res.status(200).send({ usuarios });
+        } catch(err) {
+            return res.status(500).send({ message: 'Error al retornar los datos.' });
+        }
+    },
 
     updateUsuario: async function(req, res){
         try {

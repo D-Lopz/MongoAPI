@@ -1,15 +1,43 @@
 'use strict';
-const express  = require('express');
-const router   = express.Router();
+const express    = require('express');
+const router     = express.Router();
 const { Usuario } = require('../models/project');
+const Evaluacion = require('../models/Evaluacion');
 
-// GET /api/docentes — listar todos los usuarios con rol Docente
+// GET /api/docentes
 router.get('/', async (req, res) => {
   try {
-    const docentes = await Usuario.find({ 
-      rol: { $regex: /^docente$/i }  // insensible a mayúsculas
-    }).select('-contrasena');
-    res.json(docentes);
+    const docentes = await Usuario.find({ rol: { $regex: /^docente$/i } }).select('-contrasena');
+
+    // Contar evaluaciones y calcular score promedio por docente
+    const counts = await Evaluacion.aggregate([
+      { $group: { _id: "$docente", total: { $sum: 1 }, scorePromedio: { $avg: "$nlp.score" },
+          pos: { $sum: { $cond: [{ $eq: ["$nlp.sentiment","positivo"] }, 1, 0] } },
+          neg: { $sum: { $cond: [{ $eq: ["$nlp.sentiment","negativo"] }, 1, 0] } },
+          neu: { $sum: { $cond: [{ $eq: ["$nlp.sentiment","neutro"]   }, 1, 0] } },
+      }}
+    ]);
+    const countMap = {};
+    counts.forEach(c => { countMap[c._id?.toString()] = c; });
+
+    const result = docentes.map(d => {
+      const s = countMap[d._id.toString()];
+      const total = s?.total ?? 0;
+      return {
+        ...d.toObject(),
+        stats: {
+          totalEvaluaciones: total,
+          sentimentPromedio: parseFloat((s?.scorePromedio ?? 0).toFixed(4)),
+          distribucion: {
+            positivo: total > 0 ? Math.round((s.pos/total)*100) : 0,
+            neutro:   total > 0 ? Math.round((s.neu/total)*100) : 0,
+            negativo: total > 0 ? Math.round((s.neg/total)*100) : 0,
+          }
+        }
+      };
+    });
+
+    res.json(result);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -29,11 +57,11 @@ router.get('/:id', async (req, res) => {
 // POST /api/docentes
 router.post('/', async (req, res) => {
   try {
-    const { nombre, email, contrasena, docente, departamento } = req.body;
+    const { nombre, email, contrasena, docente } = req.body;
     const nuevo = await Usuario.create({
-      nombre, email, contrasena,
+      nombre, email, contrasena: contrasena || "123",
       rol: 'Docente',
-      docente: docente || { titulo: departamento || '' },
+      docente: docente || {},
       fecha_creacion: new Date()
     });
     const { contrasena: _, ...datos } = nuevo.toObject();
@@ -48,9 +76,7 @@ router.put('/:id', async (req, res) => {
   try {
     const { nombre, email, docente } = req.body;
     const updated = await Usuario.findByIdAndUpdate(
-      req.params.id,
-      { nombre, email, docente },
-      { new: true }
+      req.params.id, { nombre, email, docente }, { new: true }
     ).select('-contrasena');
     if (!updated) return res.status(404).json({ message: 'Docente no encontrado' });
     res.json(updated);
