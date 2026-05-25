@@ -76,7 +76,7 @@ router.put('/:id', async (req, res) => {
   try {
     const { nombre, email, docente } = req.body;
     const updated = await Usuario.findByIdAndUpdate(
-      req.params.id, { nombre, email, docente }, { new: true }
+      req.params.id, { nombre, email, docente }, { returnDocument: 'after' }
     ).select('-contrasena');
     if (!updated) return res.status(404).json({ message: 'Docente no encontrado' });
     res.json(updated);
